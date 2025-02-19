@@ -6,7 +6,9 @@ const cookieParser = require("cookie-parser");
 const mongonSanitize = require("express-mongo-sanitize");
 const AppError = require("./middleware/appError");
 const errorController = require("./controller/errorController");
-const userRoute = require("./routes/userRoute");
+const authRouter = require("./routes/Auth");
+const userRouter = require("./routes/User");
+const postRouter = require("./routes/Post");
 
 const path = require("path");
 
@@ -33,10 +35,14 @@ app.use(express.json({ limit: "10kb" }));
 
 app.use(mongonSanitize());
 
+// Routes for auth
+app.use("/api/v1/users", authRouter);
+
 // Routes for user
-app.use("/api/v1/users", userRoute);
+app.use("/api/v1/users", userRouter);
 
 // Routes for post
+app.use("/api/v1/posts", postRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hook/useAuth";
+
 import Link from "next/link";
 import React from "react";
 
@@ -19,15 +21,16 @@ const SignUp = () => {
     password: "",
     passwordConfirm: "",
   });
+  const { mutate, isPending, isError, error } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
+    mutate(formData);
+
   };
   return (
     <div className="flex lg:flex-row md:flex:row min-h-screen bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300">
@@ -44,7 +47,8 @@ const SignUp = () => {
             Sign up for free to access any of our products
           </p>
 
-          <form>
+          <form
+            onSubmit={handleSubmit}>
             {/* Username */}
             <div className="mb-4">
               <label htmlFor="username" className="text-sm text-gray-600">
@@ -142,10 +146,11 @@ const SignUp = () => {
             </div>
 
             <Button
+             
               type="submit"
               className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
             >
-              Sign up
+           {isPending ? "Registering..." : "Register"}
             </Button>
           </form>
 

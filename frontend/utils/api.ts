@@ -1,36 +1,23 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import axios, { Method } from "axios";
+export const API_BASE_URL = "http://localhost:5001/api"; // Replace with actual API URL
 
-interface APIResponse<T> {
-  status: string;
-  token?: string;
-  data?: T;
-  message?: string;
-}
-
-export default async function apiHandler<T>(
-  req: NextApiRequest,
-  res: NextApiResponse<APIResponse<T>>,
+export async function apiRequest<T>(
   endpoint: string,
-  method: Method
-) {
-  if (req.method !== method) {
-    return res.status(405).json({ status: "error", message: "Method Not Allowed" });
+  method: string = "GET",
+  body?: any,
+  headers: HeadersInit = {}
+): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
   }
 
-  try {
-    const backendResponse = await axios.request<APIResponse<T>>({
-      url: `${process.env.BASE_API_URL}/${endpoint}`,
-      method,
-      data: req.body,
-      headers: { "Content-Type": "application/json" },
-    });
-
-    res.status(200).json(backendResponse.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json({
-      status: "error",
-      message: error.response?.data?.message || "Internal Server Error",
-    });
-  }
+  return response.json();
 }

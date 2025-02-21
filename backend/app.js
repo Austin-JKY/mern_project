@@ -21,6 +21,8 @@ app.use(helmet());
 app.use(
   cors({
     origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allow these methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow these headers
     credentials: true,
   })
 );
@@ -36,17 +38,19 @@ app.use(express.json({ limit: "10kb" }));
 app.use(mongonSanitize());
 
 // Routes for auth
-app.use("/api/v1/users", authRouter);
+app.use("/api/users", authRouter);
 
 // Routes for user
-app.use("/api/v1/users", userRouter);
+app.use("/api/users", userRouter);
 
 // Routes for post
-app.use("/api/v1/posts", postRouter);
+app.use("/api/posts", postRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+app.options("*", cors());
 
 app.use(errorController);
 module.exports = app;
